@@ -221,3 +221,193 @@ class ConfluenceWikiClient:
                 "success": False,
                 "error": f"获取子页面失败: {str(e)}"
             }
+
+    def get_space(self, space_key: str, expand: str = '') -> dict:
+        """
+        根据空间键获取空间（文件夹）信息
+        
+        Args:
+            space_key: 空间键（例如: app, DEV, KB）
+            expand: 扩展字段，如 'metadata.labels'
+            
+        Returns:
+            空间信息字典
+        """
+        try:
+            space = self.confluence.get_space(space_key, expand=expand)
+            return {
+                "success": True,
+                "data": space
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "error": f"获取空间失败: {str(e)}"
+            }
+
+    def get_all_spaces(self, start: int = 0, limit: int = 25) -> dict:
+        """
+        获取所有空间列表
+        
+        Args:
+            start: 起始位置
+            limit: 返回数量限制
+            
+        Returns:
+            空间列表
+        """
+        try:
+            spaces = self.confluence.get_all_spaces(start=start, limit=limit)
+            return {
+                "success": True,
+                "data": spaces
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "error": f"获取空间列表失败: {str(e)}"
+            }
+
+    def get_parent_page(self, page_id: int, expand: str = 'version') -> dict:
+        """
+        根据页面 ID 获取父页面
+        
+        Args:
+            page_id: 页面 ID
+            expand: 扩展字段
+            
+        Returns:
+            父页面信息字典
+        """
+        try:
+            # 先获取当前页面的祖先信息
+            page = self.confluence.get_page_by_id(page_id, expand='ancestors')
+            ancestors = page.get('ancestors', [])
+            
+            if not ancestors:
+                return {
+                    "success": False,
+                    "error": "该页面没有父页面（可能是根页面）"
+                }
+            
+            # 获取直接父页面（最后一个祖先）
+            parent_id = ancestors[-1]['id']
+            parent_page = self.confluence.get_page_by_id(parent_id, expand=expand)
+            
+            return {
+                "success": True,
+                "data": parent_page
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "error": f"获取父页面失败: {str(e)}"
+            }
+
+    def get_descendants(self, page_id: int, depth: Optional[int] = None, expand: str = 'version') -> dict:
+        """
+        获取所有后代页面（包括子页面、孙页面等）
+        
+        Args:
+            page_id: 页面 ID
+            depth: 深度限制（None 表示无限制）
+            expand: 扩展字段
+            
+        Returns:
+            后代页面列表
+        """
+        try:
+            descendants = self.confluence.get_page_descendants(
+                page_id=page_id,
+                depth=depth,
+                expand=expand
+            )
+            return {
+                "success": True,
+                "data": descendants
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "error": f"获取后代页面失败: {str(e)}"
+            }
+
+    def get_space_pages(self, space_key: str, start: int = 0, limit: int = 25, expand: str = 'version') -> dict:
+        """
+        获取指定空间下的所有页面
+        
+        Args:
+            space_key: 空间键
+            start: 起始位置
+            limit: 返回数量限制
+            expand: 扩展字段
+            
+        Returns:
+            页面列表
+        """
+        try:
+            pages = self.confluence.get_all_pages_from_space(
+                space=space_key,
+                start=start,
+                limit=limit,
+                expand=expand
+            )
+            return {
+                "success": True,
+                "data": pages
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "error": f"获取空间页面失败: {str(e)}"
+            }
+
+    def get_page_with_space(self, space_key: str, page_id: Optional[int] = None, title: Optional[str] = None, expand: str = 'body.storage') -> dict:
+        """
+        根据空间和 ID 或标题获取页面
+        
+        Args:
+            space_key: 空间键
+            page_id: 页面 ID（与 title 二选一）
+            title: 页面标题（与 page_id 二选一）
+            expand: 扩展字段
+            
+        Returns:
+            页面信息字典
+        """
+        try:
+            if page_id:
+                # 先通过 ID 获取页面，然后验证是否属于指定空间
+                page = self.confluence.get_page_by_id(page_id, expand=expand)
+                if page.get('space', {}).get('key') != space_key:
+                    return {
+                        "success": False,
+                        "error": f"页面 ID {page_id} 不属于空间 {space_key}"
+                    }
+                return {
+                    "success": True,
+                    "data": page
+                }
+            elif title:
+                # 通过空间和标题获取页面
+                page = self.confluence.get_page_by_title(space=space_key, title=title, expand=expand)
+                if page:
+                    return {
+                        "success": True,
+                        "data": page
+                    }
+                else:
+                    return {
+                        "success": False,
+                        "error": f"在空间 {space_key} 中未找到页面: {title}"
+                    }
+            else:
+                return {
+                    "success": False,
+                    "error": "必须提供 page_id 或 title 中的一个"
+                }
+        except Exception as e:
+            return {
+                "success": False,
+                "error": f"获取页面失败: {str(e)}"
+            }

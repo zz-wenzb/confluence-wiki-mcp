@@ -87,8 +87,63 @@ def test_wiki_client():
     # print(json.dumps(result, ensure_ascii=False, indent=2))
     print("⚠️  跳过此测试（需要提供有效的父页面 ID）")
     
-    # 测试 5: 创建页面
-    print("\n【测试 5】创建页面示例（不实际执行）")
+    # 测试 5: 获取空间信息
+    test_space_key = os.getenv('TEST_SPACE', 'app')
+    print(f"\n【测试 5】获取空间信息 (space: {test_space_key})")
+    result = client.get_space(test_space_key)
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+    
+    if result['success']:
+        print(f"✅ 成功获取空间: {result['data'].get('name', 'N/A')}")
+    else:
+        print(f"❌ 失败: {result['error']}")
+    
+    # 测试 6: 获取所有空间列表
+    print("\n【测试 6】获取所有空间列表")
+    result = client.get_all_spaces(limit=5)
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+    
+    if result['success']:
+        total = len(result['data'].get('results', []))
+        print(f"✅ 找到 {total} 个空间")
+    else:
+        print(f"❌ 失败: {result['error']}")
+    
+    # 测试 7: 获取父页面
+    print("\n【测试 7】获取父页面 (需要先有页面 ID)")
+    # result = client.get_parent_page(page_id=YOUR_PAGE_ID)
+    # print(json.dumps(result, ensure_ascii=False, indent=2))
+    print("⚠️  跳过此测试（需要提供有效的页面 ID）")
+    
+    # 测试 8: 获取后代页面
+    print("\n【测试 8】获取后代页面 (需要先有页面 ID)")
+    # result = client.get_descendants(page_id=YOUR_PAGE_ID)
+    # print(json.dumps(result, ensure_ascii=False, indent=2))
+    print("⚠️  跳过此测试（需要提供有效的页面 ID）")
+    
+    # 测试 9: 获取空间下的所有页面
+    print(f"\n【测试 9】获取空间下的所有页面 (space: {test_space_key})")
+    result = client.get_space_pages(test_space_key, limit=5)
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+    
+    if result['success']:
+        total = len(result['data'])
+        print(f"✅ 找到 {total} 个页面")
+    else:
+        print(f"❌ 失败: {result['error']}")
+    
+    # 测试 10: 根据空间和 ID/标题获取页面
+    print(f"\n【测试 10】根据空间和标题获取页面 (space: {test_space_key}, title: {test_title})")
+    result = client.get_page_with_space(space_key=test_space_key, title=test_title)
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+    
+    if result['success']:
+        print(f"✅ 成功获取页面: {result['data']['title']}")
+    else:
+        print(f"❌ 失败: {result['error']}")
+    
+    # 测试 11: 创建页面
+    print("\n【测试 11】创建页面示例（不实际执行）")
     print("""
     创建页面的调用方式：
     result = client.create_page(
@@ -99,8 +154,8 @@ def test_wiki_client():
     )
     """)
     
-    # 测试 6: 更新页面
-    print("\n【测试 6】更新页面示例（不实际执行）")
+    # 测试 12: 更新页面
+    print("\n【测试 12】更新页面示例（不实际执行）")
     print("""
     更新页面的调用方式：
     result = client.update_page(
@@ -111,8 +166,8 @@ def test_wiki_client():
     )
     """)
     
-    # 测试 7: 删除页面
-    print("\n【测试 7】删除页面示例（不实际执行）")
+    # 测试 13: 删除页面
+    print("\n【测试 13】删除页面示例（不实际执行）")
     print("""
     删除页面的调用方式：
     result = client.delete_page(page_id=YOUR_PAGE_ID)

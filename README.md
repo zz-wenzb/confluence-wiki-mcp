@@ -10,6 +10,12 @@
 - ✅ **删除页面**：删除指定页面
 - ✅ **搜索页面**：使用 CQL 进行高级搜索
 - ✅ **获取子页面**：获取页面的所有子页面
+- ✅ **获取空间信息**：根据空间键获取空间（文件夹）信息
+- ✅ **获取所有空间**：获取所有可用空间列表
+- ✅ **获取父页面**：根据页面 ID 获取父页面
+- ✅ **获取后代页面**：获取所有后代页面（包括子页面、孙页面等）
+- ✅ **获取空间页面**：获取指定空间下的所有页面
+- ✅ **空间和页面组合查询**：根据空间和 ID 或标题获取页面
 
 ## 安装依赖
 
@@ -134,6 +140,53 @@ python server.py
 - `parent_id` (必填): 父页面 ID
 - `expand` (可选): 扩展字段，默认 "version"
 
+### 8. get_space
+根据空间键获取空间（文件夹）信息
+
+**参数：**
+- `space_key` (必填): 空间键（例如: app, DEV, KB）
+- `expand` (可选): 扩展字段，如 'metadata.labels'
+
+### 9. get_all_spaces
+获取所有空间列表
+
+**参数：**
+- `start` (可选): 起始位置，默认 0
+- `limit` (可选): 返回数量限制，默认 25
+
+### 10. get_parent_page
+根据页面 ID 获取父页面
+
+**参数：**
+- `page_id` (必填): 页面 ID
+- `expand` (可选): 扩展字段，默认 "version"
+
+### 11. get_descendants
+获取所有后代页面（包括子页面、孙页面等）
+
+**参数：**
+- `page_id` (必填): 页面 ID
+- `depth` (可选): 深度限制（不提供表示无限制）
+- `expand` (可选): 扩展字段，默认 "version"
+
+### 12. get_space_pages
+获取指定空间下的所有页面
+
+**参数：**
+- `space_key` (必填): 空间键
+- `start` (可选): 起始位置，默认 0
+- `limit` (可选): 返回数量限制，默认 25
+- `expand` (可选): 扩展字段，默认 "version"
+
+### 13. get_page_with_space
+根据空间和 ID 或标题获取页面
+
+**参数：**
+- `space_key` (必填): 空间键
+- `page_id` (可选): 页面 ID（与 title 二选一）
+- `title` (可选): 页面标题（与 page_id 二选一）
+- `expand` (可选): 扩展字段，默认 "body.storage"
+
 ## 使用示例
 
 ### Python 调用示例
@@ -169,6 +222,7 @@ asyncio.run(main())
 confluence-wiki-mcp/
 ├── server.py          # MCP 服务器主文件
 ├── wiki_client.py     # Confluence 客户端封装
+├── test_client.py     # 测试客户端
 ├── requirements.txt   # 依赖包列表
 ├── .env.example       # 环境变量示例
 └── README.md          # 说明文档

@@ -199,6 +199,142 @@ async def list_tools() -> list[Tool]:
                 },
                 "required": ["parent_id"]
             }
+        ),
+        Tool(
+            name="get_space",
+            description="根据空间键获取空间（文件夹）信息",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "space_key": {
+                        "type": "string",
+                        "description": "空间键（例如: app, DEV, KB）"
+                    },
+                    "expand": {
+                        "type": "string",
+                        "description": "扩展字段，如 'metadata.labels'",
+                        "default": ""
+                    }
+                },
+                "required": ["space_key"]
+            }
+        ),
+        Tool(
+            name="get_all_spaces",
+            description="获取所有空间列表",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "start": {
+                        "type": "integer",
+                        "description": "起始位置",
+                        "default": 0
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "description": "返回数量限制",
+                        "default": 25
+                    }
+                }
+            }
+        ),
+        Tool(
+            name="get_parent_page",
+            description="根据页面 ID 获取父页面",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "page_id": {
+                        "type": "integer",
+                        "description": "页面 ID"
+                    },
+                    "expand": {
+                        "type": "string",
+                        "description": "扩展字段",
+                        "default": "version"
+                    }
+                },
+                "required": ["page_id"]
+            }
+        ),
+        Tool(
+            name="get_descendants",
+            description="获取所有后代页面（包括子页面、孙页面等）",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "page_id": {
+                        "type": "integer",
+                        "description": "页面 ID"
+                    },
+                    "depth": {
+                        "type": "integer",
+                        "description": "深度限制（不提供表示无限制）"
+                    },
+                    "expand": {
+                        "type": "string",
+                        "description": "扩展字段",
+                        "default": "version"
+                    }
+                },
+                "required": ["page_id"]
+            }
+        ),
+        Tool(
+            name="get_space_pages",
+            description="获取指定空间下的所有页面",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "space_key": {
+                        "type": "string",
+                        "description": "空间键"
+                    },
+                    "start": {
+                        "type": "integer",
+                        "description": "起始位置",
+                        "default": 0
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "description": "返回数量限制",
+                        "default": 25
+                    },
+                    "expand": {
+                        "type": "string",
+                        "description": "扩展字段",
+                        "default": "version"
+                    }
+                },
+                "required": ["space_key"]
+            }
+        ),
+        Tool(
+            name="get_page_with_space",
+            description="根据空间和 ID 或标题获取页面",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "space_key": {
+                        "type": "string",
+                        "description": "空间键"
+                    },
+                    "page_id": {
+                        "type": "integer",
+                        "description": "页面 ID（与 title 二选一）"
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "页面标题（与 page_id 二选一）"
+                    },
+                    "expand": {
+                        "type": "string",
+                        "description": "扩展字段",
+                        "default": "body.storage"
+                    }
+                },
+                "required": ["space_key"]
+            }
         )
     ]
 
@@ -252,6 +388,47 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             result = client.get_page_children(
                 parent_id=arguments["parent_id"],
                 expand=arguments.get("expand", "version")
+            )
+        
+        elif name == "get_space":
+            result = client.get_space(
+                space_key=arguments["space_key"],
+                expand=arguments.get("expand", "")
+            )
+        
+        elif name == "get_all_spaces":
+            result = client.get_all_spaces(
+                start=arguments.get("start", 0),
+                limit=arguments.get("limit", 25)
+            )
+        
+        elif name == "get_parent_page":
+            result = client.get_parent_page(
+                page_id=arguments["page_id"],
+                expand=arguments.get("expand", "version")
+            )
+        
+        elif name == "get_descendants":
+            result = client.get_descendants(
+                page_id=arguments["page_id"],
+                depth=arguments.get("depth"),
+                expand=arguments.get("expand", "version")
+            )
+        
+        elif name == "get_space_pages":
+            result = client.get_space_pages(
+                space_key=arguments["space_key"],
+                start=arguments.get("start", 0),
+                limit=arguments.get("limit", 25),
+                expand=arguments.get("expand", "version")
+            )
+        
+        elif name == "get_page_with_space":
+            result = client.get_page_with_space(
+                space_key=arguments["space_key"],
+                page_id=arguments.get("page_id"),
+                title=arguments.get("title"),
+                expand=arguments.get("expand", "body.storage")
             )
         
         else:
