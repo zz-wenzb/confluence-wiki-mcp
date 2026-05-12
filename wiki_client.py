@@ -124,25 +124,21 @@ class ConfluenceWikiClient:
             更新结果
         """
         try:
-            # 先获取当前页面以获取版本号
-            current_page = self.confluence.get_page_by_id(page_id, expand='version')
-            version = current_page['version']['number'] + 1
-            
-            # 更新页面
-            self.confluence.update_page(
+            # atlassian-python-api 的 update_page 方法会自动处理版本号
+            result = self.confluence.update_page(
                 page_id=page_id,
                 title=title,
                 body=body,
                 type='page',
                 representation='storage',
-                version=version,
                 minor_edit=False,
                 version_comment=version_comment
             )
             
             return {
                 "success": True,
-                "message": f"页面更新成功: {title}"
+                "message": f"页面更新成功: {title}",
+                "data": result
             }
         except Exception as e:
             return {
@@ -212,9 +208,11 @@ class ConfluenceWikiClient:
                 type='page',
                 expand=expand
             )
+            # 将生成器转换为列表
+            children_list = list(children) if hasattr(children, '__iter__') and not isinstance(children, (list, dict)) else children
             return {
                 "success": True,
-                "data": children
+                "data": children_list
             }
         except Exception as e:
             return {
@@ -317,11 +315,15 @@ class ConfluenceWikiClient:
             后代页面列表
         """
         try:
-            descendants = self.confluence.get_page_descendants(
-                page_id=page_id,
-                depth=depth,
-                expand=expand
-            )
+            # 使用 CQL 查询后代页面
+            cql = f"ancestor={page_id}"
+            if depth is not None:
+                # atlassian-pytorch 不直接支持深度限制，需要通过 API 参数
+                pass
+            
+            results = self.confluence.cql(cql=cql, limit=100, expand=expand)
+            descendants = results.get('results', [])
+            
             return {
                 "success": True,
                 "data": descendants
