@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "confluence-wiki-mcp-server"
+version = "1.0.0"
+description = "MCP Server for Confluence Wiki - Provides tools to interact with Confluence pages"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+keywords = ["mcp", "confluence", "wiki", "atlassian"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "atlassian-python-api>=3.41.0",
+    "mcp>=1.0.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "black>=23.0",
+    "flake8>=6.0",
+]
+
+[project.scripts]
+confluence-wiki-mcp-server = "confluence_wiki_mcp.server:main"
+
+[tool.setuptools.packages.find]
+include = ["confluence_wiki_mcp*"]
+
+[tool.setuptools.package-data]
+confluence_wiki_mcp = ["*.md"]

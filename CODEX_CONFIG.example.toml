@@ -1,0 +1,52 @@
+# ==========================================
+# MCP 服务器配置 - Confluence Wiki
+# ==========================================
+# 
+# 使用说明：
+# 1. 将此文件内容复制到您的 Codex 配置文件中
+#    Windows: %USERPROFILE%\.codex\config.toml
+#    Linux/Mac: ~/.codex/config.toml
+#
+# 2. 修改下面的环境变量为您的实际配置
+#
+# 3. 启动 Codex: codex
+# ==========================================
+
+# ⚠️ 重要：选择以下其中一种配置方式
+
+# ==========================================
+# 方式一：使用本地安装（推荐，立即可用）
+# ==========================================
+# 先运行：pip install -e .
+# 然后使用此配置
+[mcp_servers.confluence-wiki]
+command = "confluence-wiki-mcp-server"
+# 不需要 args，因为已经是命令行命令了
+
+# ==========================================
+# 方式二：使用 uvx（需要先发布到 PyPI）
+# ==========================================
+# 如果包已发布到 PyPI，可以使用此配置
+# [mcp_servers.confluence-wiki]
+# command = "uvx"
+# args = ["--from", "confluence-wiki-mcp-server", "confluence-wiki-mcp-server"]
+
+[mcp_servers.confluence-wiki.env]
+CONFLUENCE_URL = "https://your-confluence-domain.com/"
+CONFLUENCE_USERNAME = "your_username"
+CONFLUENCE_PASSWORD = "your_password"
+CONFLUENCE_CLOUD = "false"
+CONFLUENCE_VERIFY_SSL = "false"
+
+# 可选：对特定工具设置审批模式
+# auto: 自动执行（默认）
+# prompt: 每次询问用户（推荐用于敏感操作）
+# approve: 自动批准（同 auto）
+[mcp_servers.confluence-wiki.tools.delete_page]
+approval_mode = "prompt"
+
+[mcp_servers.confluence-wiki.tools.update_page]
+approval_mode = "prompt"
+
+[mcp_servers.confluence-wiki.tools.create_page]
+approval_mode = "prompt"
